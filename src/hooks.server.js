@@ -1,3 +1,9 @@
+// export async function handle({ event, resolve }) {
+//   const token = event.cookies.get('token');
+//   event.locals.user = token ? { name: 'Admin' } : null;
+//   return resolve(event);
+// }
+
 import { redirect } from '@sveltejs/kit';
 import jwt from 'jsonwebtoken';
 import { JWT_SECRET } from '$env/static/private';
