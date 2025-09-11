@@ -22,9 +22,10 @@
 
   <div class="flex items-center">
     <Button
+      size="sm"
       type="submit"
       variant="emerald"
-      customClass="rounded-l-none rounded-r-xl px-6 text-sm h-full whitespace-nowrap border border-emerald-600 "
+      customClass="rounded-l-none rounded-r-xl px-6 h-full"
     >
       <Icon icon="mdi:magnify" class="mr-2 text-base" />
       Cari Data

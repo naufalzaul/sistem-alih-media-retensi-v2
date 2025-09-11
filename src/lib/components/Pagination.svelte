@@ -1,16 +1,17 @@
 <script>
-  import { createPagination, melt } from "@melt-ui/svelte";
+  import { createPagination } from "@melt-ui/svelte";
   import Icon from "@iconify/svelte";
+  import { onMount, onDestroy } from "svelte";
 
   export let total = 100;
   export let perPage = 10;
   export let siblingCount = 1;
   export let defaultPage = 1;
-  export let onPageChange = () => {};
+  export let onPageChange = (page) => {};
 
   const {
     elements: { root, pageTrigger, prevButton, nextButton },
-    states: { pages, range, page },
+    states: { pages, page },
   } = createPagination({
     count: total,
     perPage,
@@ -18,13 +19,18 @@
     siblingCount,
   });
 
-  $: page.subscribe((p) => {
-    onPageChange(p);
+  let unsubscribe;
+  onMount(() => {
+    unsubscribe = page.subscribe((p) => {
+      defaultPage = p;
+      onPageChange(p);
+    });
   });
+  onDestroy(() => unsubscribe?.());
 </script>
 
 <nav
-  class="flex flex-col items-end gap-3"
+  class="flex flex-col items-end gap-3 py-10"
   aria-label="Pagination"
   use:melt={$root}
 >
@@ -44,7 +50,7 @@
         <button
           use:melt={$pageTrigger(p)}
           class="px-3 py-1 rounded-md text-sm font-medium transition border
-            {p.selected
+            {p.value === defaultPage
             ? 'bg-emerald-600 text-white border-emerald-600'
             : 'bg-white text-gray-700 border-gray-200 hover:bg-gray-100'}"
         >

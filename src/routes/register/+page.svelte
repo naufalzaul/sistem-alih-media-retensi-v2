@@ -1,49 +1,55 @@
 <script>
   import "$src/app.css";
-  import { createForm } from "felte";
-  import { validator } from "@felte/validator-zod";
-  import { z } from "zod";
   import { enhance } from "$app/forms";
   import Input from "$components/Input.svelte";
   import Button from "$components/Button.svelte";
+  import Icon from "@iconify/svelte";
+  import { fadeIn } from "$utils/animations";
   import { onMount } from "svelte";
 
-  import { observeVisible } from "$lib/utils/fadeDownAnimate.js";
+  import { showToast } from "$lib/utils/ToastAlert.js";
 
-  const schema = z
-    .object({
-      fullName: z.string().min(1, "Nama wajib diisi"),
-      username: z.string().min(1, "Username wajib diisi"),
-      email: z.string().email("Email tidak valid"),
-      password: z.string().min(6, "Password minimal 6 karakter"),
-      confirmPassword: z.string(),
-    })
-    .refine((data) => data.password === data.confirmPassword, {
-      path: ["confirmPassword"],
-      message: "Password tidak sama",
-    });
+  const eyeIcon = "heroicons:eye";
+  const eyeOffIcon = "heroicons:eye-slash";
 
-  const { form, errors, isSubmitting } = createForm({
-    extend: validator({ schema }),
-  });
+  export let form;
+  export let data;
 
-  let visible = false;
-  let el;
+  let showPassword = false;
+  let showConfirmPassword = false;
+  let containerEl;
 
   onMount(() => {
-    observeVisible(el, () => {
-      visible = true;
-    });
+    fadeIn(containerEl);
   });
+
+  $: errors = form?.errors || {};
+  $: values = form?.values || {
+    name: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+  };
+  $: if (form?.toast)
+    showToast(form.toast.message, form.toast.type, form.redirect);
 </script>
 
-<main
-  class="relative z-10 min-h-screen flex items-center justify-center px-4 tracking-wider bg-gray-50"
->
+<svelte:head>
+  <style>
+    .toast-message {
+      font-family: "Inter", sans-serif;
+      border-radius: 8px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      margin: 10px;
+    }
+  </style>
+</svelte:head>
+
+<main class="min-h-screen flex items-center justify-center p-4 bg-gray-50">
   <div class="fixed inset-0 z-0 overflow-hidden pointer-events-none">
     <svg
       class="absolute right-0 top-0 h-full w-full opacity-40"
-      xmlns="http://www.w3.org/2000/svg"
       viewBox="0 0 600 600"
       preserveAspectRatio="none"
     >
@@ -63,153 +69,130 @@
   </div>
 
   <div
-    class="w-full max-w-6xl grid grid-cols-1 md:grid-cols-[1fr_1fr] bg-white rounded-xl shadow-2xl overflow-hidden z-10"
+    bind:this={containerEl}
+    class="w-full max-w-5xl grid grid-cols-1 md:grid-cols-[1fr_1fr] bg-white rounded-xl shadow-xl overflow-hidden z-10 opacity-0 transition-opacity duration-500"
   >
-    <div class="p-10 md:p-14 flex flex-col justify-between bg-gray-50">
-      <div class="flex items-center gap-3 mb-6">
+    <div class="p-6 md:p-8 lg:p-10 flex flex-col justify-between bg-white">
+      <header class="flex items-center gap-3 mb-8">
         <img
           src="/logo.jpg"
           alt="Logo RS Widodo Ngawi"
           class="w-8 h-8 rounded"
         />
         <span class="font-semibold text-emerald-700">RS Widodo Ngawi</span>
-      </div>
+      </header>
 
-      <div class="w-full max-w-5xl mx-auto space-y-5">
+      <div class="w-full max-w-md mx-auto space-y-6">
         <div class="space-y-2">
-          <h2 class="text-2xl font-bold uppercase text-gray-700">Registrasi</h2>
-          <p class="text-gray-500 tracking-wide">
-            Daftar untuk mulai menggunakan sistem alih media & retensi arsip.
+          <h1 class="text-2xl md:text-3xl font-semibold text-gray-800">
+            Registrasi Akun
+          </h1>
+          <p class="text-gray-600 text-sm md:text-sm">
+            Daftar untuk mengakses sistem alih retensi arsip digital
           </p>
         </div>
 
-        <form use:form use:enhance class="space-y-6">
-          <Input
-            id="fullname"
-            name="fullName"
-            label="Nama Lengkap"
-            placeholder="Nama lengkap"
-            className={$errors.fullName ? "border-red-500" : ""}
-          />
+        <form use:enhance method="POST" class="space-y-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-1">
+              <Input
+                name="name"
+                label="Nama Lengkap"
+                placeholder="Masukkan nama lengkap"
+                error={errors.name?.[0]}
+                bind:value={values.name}
+                required
+              />
+            </div>
 
-          {#if $errors.fullName}
-            <p class="text-sm text-red-500">{$errors.fullName}</p>
-          {/if}
-
-          <div class="grid md:grid-cols-2 gap-4">
-            <Input
-              id="username"
-              name="username"
-              label="Username"
-              placeholder="Username"
-              className={$errors.username ? "border-red-500" : ""}
-            />
-            <Input
-              id="email"
-              name="email"
-              label="Email"
-              placeholder="Email aktif"
-              type="email"
-              className={$errors.email ? "border-red-500" : ""}
-            />
-            {#if $errors.username}
-              <p class="text-sm text-red-500">{$errors.username}</p>
-            {/if}
-
-            {#if $errors.email}
-              <p class="text-sm text-red-500">{$errors.email}</p>
-            {/if}
+            <div class="md:col-span-1">
+              <Input
+                name="email"
+                label="Email"
+                placeholder="contoh@rsngawi.id"
+                type="email"
+                error={errors.email?.[0]}
+                bind:value={values.email}
+                required
+              />
+            </div>
           </div>
 
-          <div class="grid md:grid-cols-2 gap-4">
-            <Input
-              id="password"
-              name="password"
-              label="Password"
-              type="password"
-              placeholder="********"
-              className={$errors.password ? "border-red-500" : ""}
-            />
-            <Input
-              id="confirmPassword"
-              name="confirmPassword"
-              label="Konfirmasi Password"
-              type="password"
-              placeholder="********"
-              className={$errors.confirmPassword ? "border-red-500" : ""}
-            />
-            {#if $errors.password}
-              <p class="text-sm text-red-500">{$errors.password}</p>
-            {/if}
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div class="md:col-span-1">
+              <Input
+                name="password"
+                label="Password"
+                placeholder="Masukkan password"
+                type={showPassword ? "text" : "password"}
+                suffixIcon={showPassword ? eyeOffIcon : eyeIcon}
+                on:suffixClick={() => (showPassword = !showPassword)}
+                error={errors.password?.[0]}
+                required
+              >
+                <p slot="hint" class="mt-1 text-xs text-gray-500">
+                  Minimal 8 karakter, mengandung huruf besar dan angka
+                </p>
+              </Input>
+            </div>
 
-            {#if $errors.confirmPassword}
-              <p class="text-sm text-red-500">{$errors.confirmPassword}</p>
-            {/if}
+            <div class="md:col-span-1">
+              <Input
+                name="confirmPassword"
+                label="Konfirmasi Password"
+                placeholder="Ulangi password"
+                type={showConfirmPassword ? "text" : "password"}
+                suffixIcon={showConfirmPassword ? eyeOffIcon : eyeIcon}
+                on:suffixClick={() =>
+                  (showConfirmPassword = !showConfirmPassword)}
+                error={errors.confirmPassword?.[0]}
+                required
+              />
+            </div>
           </div>
 
-          <Button type="submit" variant="emerald" full disabled={$isSubmitting}>
-            Daftar
+          <Button type="submit" variant="emerald" size="md" full>
+            Daftar Sekarang
           </Button>
         </form>
 
-        <div class="text-center text-sm text-gray-600">
-          <span>Sudah punya akun?</span>
+        <div
+          class="text-center pt-4 border-t border-gray-200 text-sm text-gray-600"
+        >
+          Sudah punya akun?
           <a
             href="/login"
             class="text-emerald-600 font-medium hover:underline ml-1"
           >
-            Kembali ke login
+            Masuk disini
           </a>
         </div>
       </div>
     </div>
 
-    <div
-      class="relative overflow-hidden rounded-e-xl text-white flex flex-col justify-between min-h-[600px] w-full md:w-auto"
-    >
+    <div class="relative hidden md:block bg-emerald-800 min-h-[500px]">
       <img
         src="/elen-sher-0dF7UzD2Yd8-unsplash.jpg"
-        alt="Hospital Building"
-        class="absolute inset-0 w-full h-full object-cover object-[right_bottom] opacity-90 z-0 brightness-50"
+        alt="Digital Medical Records"
+        class="absolute inset-0 w-full h-full object-cover object-left-top opacity-90"
       />
-
-      <svg
-        class="absolute inset-y-0 left-0 h-full w-[100px] z-10"
-        viewBox="0 0 200 600"
-        preserveAspectRatio="none"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path d="M200,0 C20,200 20,400 200,600 L0,600 L0,0 Z" fill="#f9fafb" />
-      </svg>
+      <div class="absolute inset-0 bg-emerald-900/70"></div>
 
       <div
-        bind:this={el}
-        class="relative z-20 h-full px-10 py-10 flex flex-col justify-between text-center ml-14
-         transition-all duration-1000 ease-out
-         transform
-         opacity-0 translate-y-8"
-        class:opacity-100={visible}
-        class:translate-y-0={visible}
-        class:pointer-events-none={!visible}
+        class="relative z-20 h-full p-8 lg:p-10 flex flex-col justify-between text-white"
       >
-        <div class="flex-1 flex flex-col justify-center space-y-5">
-          <h2 class="text-3xl md:text-4xl font-semibold leading-tight">
-            Transformasi Arsip Menuju Era Digital
+        <div class="space-y-6">
+          <h2 class="text-2xl lg:text-3xl font-bold leading-tight">
+            Transformasi Digital Rekam Medis
           </h2>
-          <p class="text-white/90 font-light leading-relaxed">
-            <span class="font-medium text-white italic"
-              >Sistem Alih Media & Retensi RS Widodo Ngawi</span
-            >
-            menghadirkan solusi digitalisasi arsip rekam medis yang cepat, aman,
-            dan efisien — mendukung pelayanan kesehatan yang lebih terstruktur dan
-            modern.
+          <p class="text-white/90 leading-relaxed">
+            Sistem terpadu untuk manajemen arsip elektronik yang aman dan
+            efisien
           </p>
         </div>
-
-        <div class="text-sm text-white/90 mt-6 leading-relaxed">
-          Jl. Yos Sudarso No.8, Winong, Margomulyo<br />
-          Kec. Ngawi, Kabupaten Ngawi, Jawa Timur 63217
+        <div class="text-sm text-white/80">
+          <p>RS Widodo Ngawi</p>
+          <p>Jl. Yos Sudarso No.8, Ngawi, Jawa Timur</p>
         </div>
       </div>
     </div>

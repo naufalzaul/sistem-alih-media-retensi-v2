@@ -1,58 +1,76 @@
 <script>
   import { createTabs, melt } from "@melt-ui/svelte";
+  import Icon from "@iconify/svelte";
 
+  export let data;
   export let tabs = [];
   export let defaultTab = tabs[0]?.id ?? "default";
+  export let userRole = "";
 
   const {
     elements: { root, list, trigger, content },
-    states: { value },
   } = createTabs({ defaultValue: defaultTab });
+
+  $: filteredTabs = tabs.filter(
+    (tab) => !tab.roles || tab.roles.includes(userRole)
+  );
+  $: groups = Array.from(
+    new Set(filteredTabs.map((t) => t.group || "Default"))
+  );
 </script>
 
-<div use:melt={$root} class="mt-6 flex flex-col overflow-hidden bg-white">
-  <div
+<div use:melt={$root} class="flex border-t h-[77vh] border-gray-200 relative">
+  <aside
     use:melt={$list}
-    class="flex flex-wrap gap-2 px-4 pt-4 border-b border-gray-200 bg-gray-50"
+    class="flex flex-col w-60 pr-4 border-r border-gray-200 sticky top-0 bg-transparent"
   >
-    {#each tabs as tab}
-      <button
-        use:melt={$trigger(tab.id)}
-        class="px-4 py-2 text-sm font-medium rounded-t-md transition
-          data-[state=active]:bg-white data-[state=active]:text-emerald-700
-          data-[state=active]:border border-gray-300 border-b-transparent
-          text-gray-500 hover:text-emerald-600"
+    {#each groups as grp}
+      <div
+        class="px-4 pt-4 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider"
       >
-        {tab.title}
-      </button>
+        {grp}
+      </div>
+      {#each filteredTabs.filter((t) => (t.group || "Default") === grp) as tab}
+        <button
+          use:melt={$trigger(tab.id)}
+          class="flex items-center gap-2 px-4 py-2 text-sm rounded-md cursor-pointer
+                 hover:bg-gray-100 text-gray-700 transition
+                 data-[state=active]:bg-gray-200 data-[state=active]:font-medium"
+        >
+          {#if tab.icon}
+            <Icon icon={tab.icon} class="w-4 h-4" />
+          {/if}
+          {tab.title}
+        </button>
+      {/each}
     {/each}
-  </div>
+  </aside>
 
-  <div class="p-6">
-    {#if tabs.find((tab) => tab.id === "general")}
-      <div use:melt={$content("general")}>
-        <slot name="general" />
+  <main class="flex-1 overflow-y-auto p-6">
+    {#each filteredTabs as tab}
+      <div use:melt={$content(tab.id)} class="animate-fadeIn">
+        {#if typeof tab.content === "string"}
+          {@html tab.content}
+        {:else if tab.content}
+          <svelte:component this={tab.content} {data} />
+        {/if}
       </div>
-    {/if}
-    {#if tabs.find((tab) => tab.id === "profile")}
-      <div use:melt={$content("profile")}>
-        <slot name="profile" />
-      </div>
-    {/if}
-    {#if tabs.find((tab) => tab.id === "time")}
-      <div use:melt={$content("time")}>
-        <slot name="time" />
-      </div>
-    {/if}
-    {#if tabs.find((tab) => tab.id === "language")}
-      <div use:melt={$content("language")}>
-        <slot name="language" />
-      </div>
-    {/if}
-    {#if tabs.find((tab) => tab.id === "others")}
-      <div use:melt={$content("others")}>
-        <slot name="others" />
-      </div>
-    {/if}
-  </div>
+    {/each}
+  </main>
 </div>
+
+<style>
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.25s ease-in-out;
+  }
+</style>

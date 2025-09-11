@@ -1,33 +1,83 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { register } from '$lib/api/auth';
+import { z } from 'zod';
+import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
-/** @type {import('./$types').Actions} */
+const registerSchema = z.object({
+  name: z.string()
+    .min(3, "Nama minimal 3 karakter")
+    .max(100, "Nama maksimal 100 karakter"),
+  email: z.string()
+    .email("Email tidak valid")
+    .endsWith("@rsngawi.id", "Harus menggunakan domain RS Widodo Ngawi"),
+  password: z.string()
+    .min(8, "Password minimal 8 karakter")
+    .regex(/[A-Z]/, "Harus mengandung huruf besar")
+    .regex(/[0-9]/, "Harus mengandung angka"),
+  confirmPassword: z.string()
+}).refine(data => data.password === data.confirmPassword, {
+  message: "Password tidak sama",
+  path: ["confirmPassword"]
+});
+
 export const actions = {
-  default: async ({ request }) => {
-    const data = await request.formData();
+  default: async ({ request, fetch }) => {
+    const formData = await request.formData();
+    const data = Object.fromEntries(formData);
 
-    const fullName = data.get('fullName')?.toString();
-    const username = data.get('username')?.toString();
-    const email = data.get('email')?.toString();
-    const password = data.get('password')?.toString();
-    const confirmPassword = data.get('confirmPassword')?.toString();
-
-    if (password !== confirmPassword) {
+    const result = registerSchema.safeParse(data);
+    if (!result.success) {
       return fail(400, {
-        error: 'Password dan konfirmasi tidak cocok',
-        values: { fullName, username, email }
+        errors: result.error.flatten().fieldErrors,
+        values: {
+          name: data.name,
+          email: data.email,
+          password: '',
+          confirmPassword: ''
+        },
+        toast: {
+          type: 'error',
+          message: 'Validasi form gagal'
+        }
       });
     }
 
-    try {
-      await register({ fullName, username, email, password });
+    const response = await fetch(`${PUBLIC_API_BASE_URL}/api/v2/register`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: result.data.name,
+        email: result.data.email,
+        password: result.data.password
+      })
+    });
 
-      throw redirect(302, '/login');
-    } catch (error) {
-      return fail(400, {
-        error: error.message || 'Registrasi gagal',
-        values: { fullName, username, email }
+    const { message } = await response.json();
+
+    if (!response.ok) {
+      return fail(response.status, {
+        errors: {
+          email: [message?.includes('Email') ? message : 'Registrasi gagal'],
+          password: ['']
+        },
+        values: {
+          name: data.name,
+          email: data.email,
+          password: '',
+          confirmPassword: ''
+        },
+        toast: {
+          type: 'error',
+          message: message || 'Registrasi gagal'
+        }
       });
     }
+
+    return {
+      toast: {
+        type: 'success',
+        message: 'Registrasi berhasil! Mengarahkan ke halaman login...'
+      },
+      redirect: '/login'
+    };
   }
 };
