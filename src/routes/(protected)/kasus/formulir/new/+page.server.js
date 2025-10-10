@@ -46,19 +46,24 @@ export const actions = {
         });
       }
 
-      // Object.keys(kasusCache.pages)
-      //   .filter(key => key.startsWith('kasus:page:1:'))
-      //   .forEach(key => {
-      //     const pageData = kasusCache.get(key);
-      //     if (!pageData) return;
+      Object.keys(kasusCache.pages)
+        .filter(key => key.startsWith('kasus:page:1:'))
+        .forEach(key => {
+          const pageData = kasusCache.get(key);
+          if (!pageData?.kasus?.data) return;
 
-      //     pageData.kasus.data.unshift(payload);
-      //     pageData.kasus.total += 1;
-      //     pageData.kasus.total_pages = Math.ceil(pageData.kasus.total / pageData.kasus.per_page);
+          const kasusBaru = responseData.data;
+          pageData.kasus.data.unshift(kasusBaru);
 
-      //     kasusCache.set(key, pageData);
-      //   });
-      kasusCache.clear()
+          if (pageData.kasus.data.length > pageData.kasus.per_page) {
+            pageData.kasus.data.splice(pageData.kasus.per_page);
+          }
+
+          pageData.kasus.total += 1;
+          pageData.kasus.total_pages = Math.ceil(pageData.kasus.total / pageData.kasus.per_page);
+
+          kasusCache.set(key, pageData);
+        });
 
       return {
         success: true,

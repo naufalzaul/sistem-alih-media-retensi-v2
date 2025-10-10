@@ -41,15 +41,16 @@ export const actions = {
     const formData = await request.formData();
     const data = Object.fromEntries(formData);
 
-    const payload = kasusSchema.safeParse(data);
-    if (!payload.success) {
+    const result = kasusSchema.safeParse(data);
+    if (!result.success) {
       return fail(400, {
-        errors: payload.error.flatten().fieldErrors,
+        errors: result.error.flatten().fieldErrors,
         values: data,
         toast: { type: 'error', message: 'Validasi gagal, periksa input Anda' }
       });
     }
 
+    const payload = result.data;
     try {
       const response = await fetch(`${PUBLIC_API_BASE_URL}/api/v2/kasus/${params.slug}`, {
         method: 'PUT',
@@ -57,7 +58,7 @@ export const actions = {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${cookies.get('session_token')}`
         },
-        body: JSON.stringify(payload.data)
+        body: JSON.stringify(payload)
       });
 
       const responseData = await response.json();
@@ -66,9 +67,10 @@ export const actions = {
         return fail(400, {
           errors: {},
           values: data,
-          toast: { type: 'error', message: json.message || 'Update kasus gagal' }
+          toast: { type: 'error', message: responseData.message || 'Update kasus gagal' }
         });
       }
+
 
       cookies.delete('localData', { path: '/' });
 
@@ -77,8 +79,8 @@ export const actions = {
         .forEach(key => {
           const pageData = kasusCache.get(key);
           if (!pageData) return;
+          const index = pageData.kasus.data.findIndex(p => String(p.ID) === String(params.slug));
 
-          const index = pageData.kasus.data.findIndex(p => p.JenisKasus === payload.JenisKasus);
           if (index !== -1) {
             pageData.kasus.data[index] = { ...pageData.kasus.data[index], ...payload };
             kasusCache.set(key, pageData);

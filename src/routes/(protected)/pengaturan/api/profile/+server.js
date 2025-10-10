@@ -1,6 +1,7 @@
 import { fail } from '@sveltejs/kit';
 import { z } from 'zod';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { resetProfileCache } from '$lib/cache/profile.js';
 
 const profileSchema = z.object({
   name: z.string().min(2, "Nama lengkap minimal 2 karakter"),
@@ -35,6 +36,8 @@ export const POST = async ({ request, fetch, cookies }) => {
         toast: { type: "error", message: responseData.message || "Gagal update profil" }
       });
     }
+
+    resetProfileCache();
 
     return new Response(
       JSON.stringify({ toast: { type: 'success', message: 'Profil berhasil diperbarui' } }),

@@ -76,19 +76,6 @@ export const actions = {
 
       cookies.delete('localData', { path: '/' });
 
-      // Object.keys(alihMediaCache.pages)
-      //   .filter(k => k.startsWith('alihMedia:page:'))
-      //   .forEach(key => {
-      //     const pageData = alihMediaCache.get(key);
-      //     if (!pageData) return;
-
-      //     const index = pageData.alih_media.data?.findIndex(p => p.ID === payload.IdKunjungan);
-      //     if (index !== -1) {
-      //       pageData.alih_media.data[index] = { ...pageData.alih_media.data[index], ...payload };
-      //       alihMediaCache.set(key, pageData);
-      //     }
-      //   });
-
       alihMediaCache.clear();
 
       return {

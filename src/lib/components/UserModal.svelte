@@ -9,7 +9,6 @@
   export let open = false;
   export let onClose = () => {};
   export let data = null;
-  export let options = [];
 
   const dispatch = createEventDispatcher();
 

@@ -7,8 +7,6 @@
 
   import { localData } from "$lib/stores/localData";
 
-  export let data;
-
   export let form;
   export let isEditMode = false;
 
@@ -162,17 +160,19 @@
 
     <div class="grid grid-cols-1 gap-4">
       <div class="form-group">
+        <!-- svelte-ignore a11y_label_has_associated_control -->
         <label class="block text-sm font-medium text-gray-700 mb-1">
           Detail Lainnya
         </label>
 
+        <!-- svelte-ignore element_invalid_self_closing_tag -->
         <textarea
           name="InfoLain"
           bind:value={values.InfoLain}
           class="focus:ring-emerald-500 focus:border-emerald-500 block w-full sm:text-sm border-gray-300 rounded-md"
           placeholder="Masukkan keterangan tambahan..."
           rows="4"
-        />
+        ></textarea>
         {#if errors.InfoLain?.[0]}
           <span class="text-red-500 text-xs">({errors.InfoLain[0]})</span>
         {/if}

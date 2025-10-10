@@ -125,6 +125,10 @@ export const actions = {
 
       localData.kasus = kasus;
 
+      if (!localData.dataTemp) localData.dataTemp = {};
+      localData.dataTemp.IDKasus = kasus.ID;
+      localData.dataTemp.JenisKasus = kasus.JenisKasus;
+
       cookies.set('localData', JSON.stringify(localData), {
         path: '/',
         httpOnly: true,
@@ -140,6 +144,7 @@ export const actions = {
       return fail(500, { toast: { type: 'error', message: err.message || 'Server error saat mencari kasus' } });
     }
   },
+
   updateKunjungan: async ({ params, request, fetch, cookies }) => {
     const formData = await request.formData();
 
@@ -148,22 +153,23 @@ export const actions = {
       localData = JSON.parse(cookies.get('localData') || '{}');
     } catch { }
 
-    if (!localData?.dataTemp.IDPasien || !localData?.dataTemp.IDKasus) {
+    if (!localData?.dataTemp?.IDPasien || !localData?.dataTemp?.IDKasus) {
       return fail(400, {
         toast: { type: 'error', message: 'Pasien atau kasus belum dipilih' }
       });
     }
 
-    const payload = new FormData();
-    payload.append('IdPasien', parseInt(localData?.dataTemp.IDPasien));
-    payload.append('IdKasus', parseInt(localData?.dataTemp.IDKasus));
-    payload.append('TglMasuk', formData.get('TglMasuk'));
-    payload.append('JenisKunjungan', formData.get('JenisKunjungan'));
+
+    const form = new FormData();
+    form.append('IdPasien', localData.dataTemp.IDPasien);
+    form.append('IdKasus', localData.dataTemp.IDKasus);
+    form.append('TglMasuk', formData.get('TglMasuk'));
+    form.append('JenisKunjungan', formData.get('JenisKunjungan'));
 
     const files = formData.getAll('File');
-    files.forEach((file, index) => {
+    files.forEach(file => {
       if (file instanceof File && file.size > 0) {
-        payload.append(`File`, file);
+        form.append('File', file);
       }
     });
 
@@ -173,7 +179,7 @@ export const actions = {
         headers: {
           Authorization: `Bearer ${cookies.get('session_token') || ''}`
         },
-        body: payload
+        body: form
       });
 
       const json = await response.json();
@@ -186,14 +192,24 @@ export const actions = {
 
       cookies.delete('localData', { path: '/' });
 
+      const updatedData = json.data || {};
+      if (localData?.kasus) {
+        updatedData.JenisKasus = localData.kasus.JenisKasus;
+        updatedData.IDKasus = localData.kasus.ID;
+      }
+
       Object.keys(kunjunganCache.pages)
         .filter(k => k.startsWith('kunjungan:page:'))
         .forEach(key => {
           const pageData = kunjunganCache.get(key);
           if (!pageData) return;
-          const index = pageData.kunjungan.data.findIndex(p => p.ID === payload.ID);
+
+          const index = pageData.kunjungan.data.findIndex(p => p.ID === updatedData.ID);
           if (index !== -1) {
-            pageData.kunjungan.data[index] = { ...pageData.kunjungan.data[index], ...payload };
+            pageData.kunjungan.data[index] = {
+              ...pageData.kunjungan.data[index],
+              ...updatedData
+            };
             kunjunganCache.set(key, pageData);
           }
         });
@@ -203,8 +219,8 @@ export const actions = {
         toast: { type: 'success', message: 'Kunjungan berhasil diperbarui' },
         redirect: '/kunjungan'
       };
-    } catch (err) {
 
+    } catch (err) {
       return fail(500, {
         success: false,
         toast: { type: 'error', message: err.message || 'Server error saat update kunjungan' }

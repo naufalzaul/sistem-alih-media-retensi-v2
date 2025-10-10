@@ -62,8 +62,7 @@
       Selamat datang, {data.user.name || "Pengguna"} 👋
     </h2>
     <p class="text-gray-500">
-      Kelola data pasien, tinjau laporan, dan awasi kategori kasus dari satu
-      tempat.
+      Kelola data pasien, tinjau laporan, dan awasi kategori kasus.
     </p>
   </div>
 
@@ -207,8 +206,7 @@
         </div>
 
         <p class="text-sm text-gray-500 leading-snug">
-          Jumlah kasus yang tercatat sepanjang tahun
-          <span class="font-semibold text-gray-700">{currentYear}</span>
+          Jumlah kasus yang tercatat
         </p>
       </div>
     </div>

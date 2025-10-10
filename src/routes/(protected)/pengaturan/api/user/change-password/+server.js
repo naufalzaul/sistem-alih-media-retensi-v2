@@ -18,8 +18,6 @@ export const POST = async ({ request, fetch, cookies }) => {
   const formData = Object.fromEntries(await request.formData());
   const result = passwordSchema.safeParse(formData);
 
-
-
   if (!result.success) {
     return json(
       {

@@ -1,5 +1,6 @@
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { kunjunganCache } from '$lib/cache/kunjungan.js';
+import { berandaCache } from '$lib/cache/beranda.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ fetch, cookies, url }) => {
@@ -22,6 +23,7 @@ export const load = async ({ fetch, cookies, url }) => {
   const emptyResult = (toastMessage) => ({
     kunjungan: { data: [], total: 0, page, per_page, total_pages: 0 },
     statistik: { total: 0 },
+    general: { total: 0, total_aktif: 0, total_tidak_aktif: 0 },
     columns,
     filters,
     toast: toastMessage ? { type: 'error', message: toastMessage } : null,
@@ -36,13 +38,15 @@ export const load = async ({ fetch, cookies, url }) => {
   if (cached) return { ...cached, cached: true };
 
   try {
+    const token = cookies.get('session_token');
+
     const urlApi =
       filters.NoRM || filters.NamaPasien || filters.JenisKasus
         ? `${PUBLIC_API_BASE_URL}/api/v2/kunjungan/search?NoRM=${filters.NoRM}&NamaPasien=${filters.NamaPasien}&JenisKasus=${filters.JenisKasus}`
         : `${PUBLIC_API_BASE_URL}/api/v2/kunjungan?page=${page}&per_page=${per_page}`;
 
     const res = await fetch(urlApi, {
-      headers: { Authorization: `Bearer ${cookies.get('session_token')}` },
+      headers: { Authorization: `Bearer ${token}` },
     });
 
     if (!res.ok) throw new Error(`API error ${res.status}`);
@@ -53,6 +57,31 @@ export const load = async ({ fetch, cookies, url }) => {
     }
 
     const kunjunganData = responseData.data || responseData || [];
+
+    let generalStatistik = { total: 0, total_aktif: 0, total_tidak_aktif: 0 };
+    const generalCacheKey = 'beranda:statistik';
+    const cachedGeneral = berandaCache.get(generalCacheKey);
+
+    if (cachedGeneral) {
+      generalStatistik = cachedGeneral.statistik;
+    } else {
+      try {
+        const resStat = await fetch(`${PUBLIC_API_BASE_URL}/api/v2/general/statistik`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (resStat.ok) {
+          const { status, data } = await resStat.json();
+          if (status === 'success' && data) {
+            generalStatistik = data;
+            berandaCache.set(generalCacheKey, { statistik: data });
+          }
+        }
+      } catch (err) {
+        console.error('Fetch general statistik gagal:', err.message);
+      }
+    }
+
     const result = {
       kunjungan: {
         data: kunjunganData,
@@ -67,6 +96,7 @@ export const load = async ({ fetch, cookies, url }) => {
           ),
       },
       statistik: responseData.statistik || { total: 0 },
+      general: generalStatistik,
       columns,
       filters,
       toast:
@@ -91,3 +121,5 @@ export const load = async ({ fetch, cookies, url }) => {
       : emptyResult('Tidak ada data kunjungan tersedia');
   }
 };
+
+

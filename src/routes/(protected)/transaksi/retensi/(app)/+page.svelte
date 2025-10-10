@@ -8,6 +8,7 @@
   import DeleteModal from "$lib/components/DeleteModal.svelte";
   import { formatDate } from "$lib/utils/date";
   import { goto } from "$app/navigation";
+  import { getStatusClass } from "$lib/utils/statusClass";
 
   export let data;
   export let form;
@@ -192,30 +193,11 @@
           </div>
           <div class="space-y-2">
             <p class="text-gray-500">Status</p>
-            <div class="flex items-center">
-              {#if selectedDetailModal?.Status === "Aktif"}
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                >
-                  <Icon icon="mdi:check-circle" class="mr-1" />
-                  {selectedDetailModal.Status}
-                </span>
-              {:else if selectedDetailModal?.Status === "Tidak Aktif"}
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800"
-                >
-                  <Icon icon="mdi:alert-circle" class="mr-1" />
-                  {selectedDetailModal.Status}
-                </span>
-              {:else}
-                <span
-                  class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
-                >
-                  <Icon icon="mdi:help-circle" class="mr-1" />
-                  {selectedDetailModal?.Status || "-"}
-                </span>
-              {/if}
-            </div>
+            <p
+              class={`w-fit px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(selectedDetailModal?.Status)}`}
+            >
+              {selectedDetailModal?.Status || "-"}
+            </p>
           </div>
         </div>
       </div>

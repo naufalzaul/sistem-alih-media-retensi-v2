@@ -39,7 +39,6 @@ export const load = async ({ fetch, cookies, url }) => {
       : `Sistem: ${err.message}`;
   }
 
-
   try {
     const usersRes = await fetch(
       `${PUBLIC_API_BASE_URL}/api/v2/users?page=${page}&per_page=${per_page}`,

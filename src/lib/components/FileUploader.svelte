@@ -1,4 +1,5 @@
 <script>
+  // svelte-ignore export_let_unused
   import Icon from "@iconify/svelte";
 
   export let dokumenFiles = [];
@@ -6,7 +7,6 @@
   export let errors = {};
 
   let fileInput;
-  // svelte-ignore export_let_unused
   export let form;
 
   const validTypes = [

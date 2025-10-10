@@ -8,7 +8,7 @@ const registerSchema = z.object({
     .max(100, "Nama maksimal 100 karakter"),
   email: z.string()
     .email("Email tidak valid")
-    .endsWith("@rsngawi.id", "Harus menggunakan domain RS Widodo Ngawi"),
+    .endsWith("@gmail.com", "Harus menggunakan domain RS Widodo Ngawi"),
   password: z.string()
     .min(8, "Password minimal 8 karakter")
     .regex(/[A-Z]/, "Harus mengandung huruf besar")

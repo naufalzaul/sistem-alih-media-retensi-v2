@@ -14,7 +14,6 @@
   import { showToast } from "$lib/utils/ToastAlert.js";
 
   export let formOptions;
-  export let data;
   export let form;
   export let isEditMode = false;
 

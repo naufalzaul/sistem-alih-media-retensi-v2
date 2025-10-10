@@ -5,7 +5,6 @@
   import { createEventDispatcher } from "svelte";
   import { showToast } from "$lib/utils/ToastAlert.js";
 
-  export let form;
   export let action = "";
   export let title = "";
 
@@ -37,10 +36,6 @@
     existingFiles = existingFiles.map((f) =>
       f.id === id ? { ...f, markedForDeletion: true } : f
     );
-  }
-
-  function previewFile(file) {
-    console.log("Preview:", file);
   }
 
   function getFileIcon(type) {
@@ -162,13 +157,6 @@
                     <div class="flex gap-2">
                       <button
                         type="button"
-                        on:click={() => previewFile(file)}
-                        class="text-blue-600 hover:text-blue-800 p-1"
-                      >
-                        <Icon icon="mdi:eye-outline" />
-                      </button>
-                      <button
-                        type="button"
                         on:click={() => hapusFile(file.id)}
                         class="text-red-600 hover:text-red-800 p-1"
                       >
@@ -198,13 +186,6 @@
                     </div>
                   </div>
                   <div class="flex gap-2">
-                    <button
-                      type="button"
-                      on:click={() => previewFile(file)}
-                      class="text-blue-600 hover:text-blue-800 p-1"
-                    >
-                      <Icon icon="mdi:eye-outline" />
-                    </button>
                     <button
                       type="button"
                       on:click={() => hapusFile(file.id)}

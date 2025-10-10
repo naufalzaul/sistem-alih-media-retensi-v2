@@ -1,20 +1,27 @@
-<!-- BELUM DI EDIT -->
 <script>
   import Icon from "@iconify/svelte";
   import { onMount } from "svelte";
   import Chart from "chart.js/auto";
-  import { localData } from "$lib/stores/localData";
-  localData?.set(null);
+
+  export let data;
 
   let chartEl;
   let chart;
 
-  let totalKunjungan = { title: "Total Kunjungan", value: 2345, change: +12 };
-  let kunjunganHariIni = { title: "Kunjungan Hari Ini", value: 45, change: +5 };
+  let totalKunjungan = {
+    title: "Total Kunjungan",
+    value: data.general?.kunjungan?.total || 0,
+    change: +0,
+  };
+  let kunjunganHariIni = {
+    title: "Kunjungan Hari Ini",
+    value: data.general?.kunjungan?.today || 0,
+    change: +0,
+  };
   let kunjunganBulanIni = {
     title: "Kunjungan Bulan Ini",
-    value: 320,
-    change: -3,
+    value: data.general?.kunjungan?.year || 0,
+    change: -0,
   };
 
   let labels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"];

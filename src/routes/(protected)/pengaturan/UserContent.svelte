@@ -29,7 +29,6 @@
 
   function handlePageChange(page) {
     const params = new URLSearchParams({ page, per_page: perPage });
-    // goto(`/pengaturan?${params.toString()}`);
   }
 
   function handleAction({ type, detail }) {

@@ -43,7 +43,6 @@ export const actions = {
       return {
         success: true,
         toast: { type: 'success', message: 'Data kasus berhasil dihapus' },
-        // redirect: '/kasus'
       };
 
     } catch (err) {

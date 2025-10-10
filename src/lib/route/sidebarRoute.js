@@ -37,10 +37,6 @@ export const sidebarRoute = [
       },
     ],
   },
-  // {
-  //   label: "Laporan", icon: "mdi:file-chart-outline", href: "/laporan",
-  //   roles: ["user", "admin"]
-  // },
   {
     label: "Pengaturan",
     icon: "mdi:account-cog-outline",
@@ -48,9 +44,5 @@ export const sidebarRoute = [
     roles: ["user", "admin"],
     bottom: true
   },
-  // {
-  //   label: "Riwayat", icon: "mdi:history", href: "/riwayat",
-  //   roles: ["admin"], bottom: true
-  // },
   { label: "Keluar", icon: "mdi:logout", href: "/logout", roles: ["user", "admin"], bottom: true },
 ];

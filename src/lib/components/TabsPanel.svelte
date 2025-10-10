@@ -22,27 +22,32 @@
 <div use:melt={$root} class="flex border-t h-[77vh] border-gray-200 relative">
   <aside
     use:melt={$list}
-    class="flex flex-col w-60 pr-4 border-r border-gray-200 sticky top-0 bg-transparent"
+    class="flex flex-col w-60 pr-4 border-r border-gray-200 sticky top-0 bg-transparent space-y-4"
   >
     {#each groups as grp}
-      <div
-        class="px-4 pt-4 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider"
-      >
-        {grp}
-      </div>
-      {#each filteredTabs.filter((t) => (t.group || "Default") === grp) as tab}
-        <button
-          use:melt={$trigger(tab.id)}
-          class="flex items-center gap-2 px-4 py-2 text-sm rounded-md cursor-pointer
-                 hover:bg-gray-100 text-gray-700 transition
-                 data-[state=active]:bg-gray-200 data-[state=active]:font-medium"
+      <div class="flex flex-col space-y-1">
+        <div
+          class="px-4 pt-4 pb-2 text-xs font-semibold text-gray-400 uppercase tracking-wider"
         >
-          {#if tab.icon}
-            <Icon icon={tab.icon} class="w-4 h-4" />
-          {/if}
-          {tab.title}
-        </button>
-      {/each}
+          {grp}
+        </div>
+
+        <div class="flex flex-col space-y-1">
+          {#each filteredTabs.filter((t) => (t.group || "Default") === grp) as tab}
+            <button
+              use:melt={$trigger(tab.id)}
+              class="flex items-center gap-2 px-4 py-2 text-sm rounded-md cursor-pointer
+                   hover:bg-gray-100 text-gray-700 transition
+                   data-[state=active]:bg-gray-200 data-[state=active]:font-medium"
+            >
+              {#if tab.icon}
+                <Icon icon={tab.icon} class="w-4 h-4" />
+              {/if}
+              {tab.title}
+            </button>
+          {/each}
+        </div>
+      </div>
     {/each}
   </aside>
 

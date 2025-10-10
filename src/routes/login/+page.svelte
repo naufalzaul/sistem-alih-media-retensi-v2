@@ -1,6 +1,5 @@
 <script>
   import "$src/app.css";
-
   import { enhance } from "$app/forms";
   import Input from "$components/Input.svelte";
   import Button from "$components/Button.svelte";
@@ -8,26 +7,25 @@
   import { fadeIn } from "$utils/animations";
   import { onMount } from "svelte";
   import { showToast } from "$lib/utils/ToastAlert.js";
+  import ForgotPasswordModal from "$lib/components/ForgotPasswordModal.svelte";
 
   const eyeIcon = "heroicons:eye";
   const eyeOffIcon = "heroicons:eye-slash";
 
   export let form;
-  export let data;
 
   let showPassword = false;
   let containerEl;
+  let showForgotModal = false;
 
-  onMount(() => {
-    fadeIn(containerEl);
-  });
+  onMount(() => fadeIn(containerEl));
 
   const togglePassword = () => (showPassword = !showPassword);
 
   $: errors = form?.errors || {};
   $: values = form?.values || {
-    email: "naufalzaulkarim@rsngawi.id",
-    password: "Naufalzaulkarim29",
+    email: "",
+    password: "",
   };
   $: if (form?.toast)
     showToast(form.toast.message, form.toast.type, form.redirect);
@@ -81,7 +79,7 @@
           <Input
             name="email"
             label="Email"
-            placeholder="user@rsngawi.id"
+            placeholder="emailuser@gmail.com"
             type="email"
             error={errors.email?.[0]}
             bind:value={values.email}
@@ -91,7 +89,7 @@
           <Input
             name="password"
             label="Password"
-            placeholder="Masukkan password"
+            placeholder="***************"
             type={showPassword ? "text" : "password"}
             suffixIcon={showPassword ? eyeOffIcon : eyeIcon}
             on:suffixClick={togglePassword}
@@ -101,7 +99,7 @@
           />
 
           <div class="flex items-center justify-between">
-            <div class="flex items-center">
+            <!-- <div class="flex items-center">
               <input
                 id="remember"
                 name="remember"
@@ -111,13 +109,15 @@
               <label for="remember" class="ml-2 block text-sm text-gray-600">
                 Ingat saya
               </label>
-            </div>
-            <!-- <a
-              href="/forgot-password"
-              class="text-sm text-emerald-600 hover:underline"
+            </div> -->
+
+            <button
+              type="button"
+              class="text-sm text-emerald-600 hover:underline cursor-pointer"
+              on:click={() => (showForgotModal = true)}
             >
               Lupa password?
-            </a> -->
+            </button>
           </div>
 
           <Button type="submit" variant="emerald" size="md" full>Masuk</Button>
@@ -137,4 +137,12 @@
       </div>
     </div>
   </div>
+  {#if showForgotModal}
+    <ForgotPasswordModal
+      open={showForgotModal}
+      title="Lupa Kata Sandi"
+      onClose={() => (showForgotModal = false)}
+      action={"/login/forgot-password"}
+    />
+  {/if}
 </main>

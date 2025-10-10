@@ -13,7 +13,6 @@
   const eyeOffIcon = "heroicons:eye-slash";
 
   export let form;
-  export let data;
 
   let showPassword = false;
   let showConfirmPassword = false;
@@ -98,7 +97,7 @@
               <Input
                 name="name"
                 label="Nama Lengkap"
-                placeholder="Masukkan nama lengkap"
+                placeholder="Nama Lengkap User"
                 error={errors.name?.[0]}
                 bind:value={values.name}
                 required
@@ -109,7 +108,7 @@
               <Input
                 name="email"
                 label="Email"
-                placeholder="contoh@rsngawi.id"
+                placeholder="emailuser@gmail.com"
                 type="email"
                 error={errors.email?.[0]}
                 bind:value={values.email}
@@ -123,7 +122,7 @@
               <Input
                 name="password"
                 label="Password"
-                placeholder="Masukkan password"
+                placeholder="***************"
                 type={showPassword ? "text" : "password"}
                 suffixIcon={showPassword ? eyeOffIcon : eyeIcon}
                 on:suffixClick={() => (showPassword = !showPassword)}
@@ -140,7 +139,7 @@
               <Input
                 name="confirmPassword"
                 label="Konfirmasi Password"
-                placeholder="Ulangi password"
+                placeholder="***************"
                 type={showConfirmPassword ? "text" : "password"}
                 suffixIcon={showConfirmPassword ? eyeOffIcon : eyeIcon}
                 on:suffixClick={() =>

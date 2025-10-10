@@ -36,7 +36,7 @@ export const actions = {
     };
 
     try {
-      const pasienResponse = await fetch(`${PUBLIC_API_BASE_URL}/api/v2/pasien`, {
+      const response = await fetch(`${PUBLIC_API_BASE_URL}/api/v2/pasien`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -45,13 +45,13 @@ export const actions = {
         body: JSON.stringify(payload)
       });
 
-      const pasienJson = await pasienResponse.json();
+      const responseData = await response.json();
 
-      if (!pasienResponse.ok || pasienJson.status !== 'success') {
+      if (!response.ok || responseData.status !== 'success') {
         return fail(400, {
           errors: {},
           values: data,
-          toast: { type: 'error', message: pasienJson.message || 'Pendaftaran pasien gagal' }
+          toast: { type: 'error', message: responseData.message || 'Pendaftaran pasien gagal' }
         });
       }
 
@@ -61,10 +61,9 @@ export const actions = {
           const pageData = pasienCache.get(key);
           if (!pageData?.pasien?.data) return;
 
-          const newPatient = pasienJson.data; // dari response API
-          pageData.pasien.data.unshift(newPatient);
+          const pasienBaru = responseData.data;
+          pageData.pasien.data.unshift(pasienBaru);
 
-          // jika ingin jaga max per_page, bisa splice
           if (pageData.pasien.data.length > pageData.pasien.per_page) {
             pageData.pasien.data.splice(pageData.pasien.per_page);
           }
@@ -74,22 +73,6 @@ export const actions = {
 
           pasienCache.set(key, pageData);
         });
-
-      // Object.keys(pasienCache.pages)
-      //   .filter(key => key.startsWith('pasien:page:'))
-      //   .forEach(key => {
-      //     const pageData = pasienCache.get(key);
-      //     if (!pageData) return;
-
-
-      //     pageData.pasien.data.unshift(payload);
-      //     pageData.pasien.total += 1;
-      //     pageData.pasien.total_pages = Math.ceil(pageData.pasien.total / pageData.pasien.per_page);
-
-      //     console.log(pageData.pasien);
-
-      //     pasienCache.set(key, pageData);
-      //   });
 
       return {
         success: true,

@@ -1,5 +1,7 @@
 <script>
-  export let data;
+  import "../app.css";
+
+  let { data, children } = $props();
 </script>
 
 <svelte:head>
@@ -8,4 +10,4 @@
   <link rel="icon" href={data.system?.Logo} />
 </svelte:head>
 
-<slot />
+{@render children()}

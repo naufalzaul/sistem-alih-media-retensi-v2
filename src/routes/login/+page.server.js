@@ -18,9 +18,7 @@ export const actions = {
     if (!result.success) {
       return fail(400, {
         errors: result.error.flatten().fieldErrors,
-        values: {
-          email: data.email
-        },
+        values: { email: data.email },
         toast: {
           type: 'error',
           message: 'Harap perbaiki kesalahan pada form',
@@ -37,23 +35,20 @@ export const actions = {
 
       const responseData = await response.json();
 
-
-
       if (!response.ok || responseData.status !== 'success') {
         return fail(400, {
           errors: {
             email: ['Email atau password salah'],
             password: [' ']
           },
-          values: {
-            email: data.email
-          },
+          values: { email: data.email },
           toast: {
             type: 'error',
             message: responseData.message || 'Login gagal',
           }
         });
       }
+
       cookies.set('session_token', responseData.data, {
         path: '/',
         httpOnly: true,
@@ -77,14 +72,13 @@ export const actions = {
           email: ['Terjadi kesalahan server'],
           password: [' ']
         },
-        values: {
-          email: data.email
-        },
+        values: { email: data.email },
         toast: {
           type: 'error',
           message: err.message || 'Terjadi kesalahan saat login',
         }
       });
     }
-  }
+  },
+
 };

@@ -12,26 +12,7 @@
     genderOptions: [],
   };
 
-  // export let defaultValues = {
-  //   NoRM: "",
-  //   NIK: "",
-  //   NamaPasien: "",
-  //   JenisKelamin: "",
-  //   TglLahir: "",
-  //   Alamat: "",
-  //   Status: "",
-  // };
-
   export let defaultValues;
-
-  // $: defaultValues = {
-  //   NoRM: "798796",
-  //   NIK: "9879834578684753",
-  //   NamaPasien: "Yahya",
-  //   JenisKelamin: "Laki-Laki",
-  //   TglLahir: "1990-05-15",
-  //   Alamat: "Jl. Mawar No. 123, Jakarta",
-  // };
 
   export let form;
   export let isEditMode = false;

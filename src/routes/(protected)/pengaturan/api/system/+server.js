@@ -1,6 +1,8 @@
 import { json } from '@sveltejs/kit';
 import { z } from 'zod';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
+import { resetSystemCache } from '$lib/cache/system.js';
+
 
 const infoSchema = z.object({
   id: z.string().min(1, "ID tidak boleh kosong"),
@@ -32,9 +34,9 @@ const infoSchema = z.object({
 });
 
 
+
 export const POST = async ({ request, fetch, cookies }) => {
   const form = await request.formData();
-
   const formData = Object.fromEntries(form);
 
   if (formData.Logo && formData.Logo.size === 0) {
@@ -43,16 +45,8 @@ export const POST = async ({ request, fetch, cookies }) => {
 
   const result = infoSchema.safeParse(formData);
 
-
   if (!result.success) {
-    return json(
-      {
-        status: 'error',
-        errors: result.error.flatten().fieldErrors,
-        toast: { type: 'error', message: 'Validasi gagal' }
-      },
-      { status: 400 }
-    );
+    return json({ status: 'error', errors: result.error.flatten().fieldErrors }, { status: 400 });
   }
 
   try {
@@ -61,12 +55,9 @@ export const POST = async ({ request, fetch, cookies }) => {
       bodyForm.append(key, value);
     }
 
-
     const res = await fetch(`${PUBLIC_API_BASE_URL}/api/v2/info-sistem/${formData.id}`, {
       method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${cookies.get('session_token')}`
-      },
+      headers: { Authorization: `Bearer ${cookies.get('session_token')}` },
       body: bodyForm
     });
 
@@ -74,16 +65,12 @@ export const POST = async ({ request, fetch, cookies }) => {
 
     if (!res.ok || responseData.status !== 'success') {
       return json(
-        {
-          status: 'error',
-          toast: {
-            type: 'error',
-            message: responseData.message || 'Gagal memperbarui info sistem'
-          }
-        },
+        { status: 'error', message: responseData.message || 'Gagal memperbarui info sistem' },
         { status: 400 }
       );
     }
+
+    resetSystemCache();
 
     return json(
       {
@@ -97,10 +84,7 @@ export const POST = async ({ request, fetch, cookies }) => {
     return json(
       {
         status: 'error',
-        toast: {
-          type: 'error',
-          message: err.message || 'Terjadi kesalahan server'
-        }
+        toast: { type: 'error', message: err.message || 'Terjadi kesalahan server' }
       },
       { status: 500 }
     );

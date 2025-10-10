@@ -189,11 +189,11 @@ export const actions = {
         body: payload
       });
 
-      const json = await response.json();
+      const responseData = await response.json();
 
-      if (!response.ok || json.status !== 'success') {
+      if (!response.ok || responseData.status !== 'success') {
         return fail(response.status || 400, {
-          toast: { type: 'error', message: json.message || 'Gagal menambah kunjungan' }
+          toast: { type: 'error', message: responseData.message || 'Gagal menambah kunjungan' }
         });
       }
 
@@ -203,15 +203,20 @@ export const actions = {
         .filter(key => key.startsWith('kunjungan:page:1:'))
         .forEach(key => {
           const pageData = kunjunganCache.get(key);
-          if (!pageData) return;
+          if (!pageData?.kunjungan?.data) return;
 
-          pageData.kunjungan.data.unshift(payload);
+          const kunjunganBaru = responseData.data;
+          pageData.kunjungan.data.unshift(kunjunganBaru);
+
+          if (pageData.kunjungan.data.length > pageData.kunjungan.per_page) {
+            pageData.kunjungan.data.splice(pageData.kunjungan.per_page);
+          }
+
           pageData.kunjungan.total += 1;
           pageData.kunjungan.total_pages = Math.ceil(pageData.kunjungan.total / pageData.kunjungan.per_page);
 
           kunjunganCache.set(key, pageData);
         });
-
 
       return {
         success: true,

@@ -74,19 +74,6 @@ export const actions = {
 
       cookies.delete('localData', { path: '/' });
 
-      // Object.keys(retensiCache.pages)
-      //   .filter(k => k.startsWith('retensi:page:'))
-      //   .forEach(key => {
-      //     const pageData = retensiCache.get(key);
-      //     if (!pageData) return;
-
-      //     const index = pageData.retensi.data?.findIndex(p => p.ID === payload.IdKunjungan);
-      //     if (index !== -1) {
-      //       pageData.retensi.data[index] = { ...pageData.retensi.data[index], ...payload };
-      //       retensiCache.set(key, pageData);
-      //     }
-      //   });
-
       retensiCache.clear();
 
       return {

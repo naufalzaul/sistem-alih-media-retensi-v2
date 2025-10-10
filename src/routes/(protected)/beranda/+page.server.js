@@ -3,6 +3,7 @@ import { berandaCache } from '$lib/cache/beranda.js';
 
 /** @type {import('./$types').PageServerLoad} */
 export const load = async ({ fetch, cookies }) => {
+
   const token = cookies.get('session_token');
   const cacheKey = 'beranda:statistik';
 
@@ -44,3 +45,4 @@ export const load = async ({ fetch, cookies }) => {
       : emptyResult('Tidak ada data statistik tersedia');
   }
 };
+``

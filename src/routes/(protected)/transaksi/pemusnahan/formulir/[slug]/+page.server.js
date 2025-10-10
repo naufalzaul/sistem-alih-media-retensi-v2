@@ -74,19 +74,6 @@ export const actions = {
 
       cookies.delete('localData', { path: '/' });
 
-      // Object.keys(pemusnahanCache.pages)
-      //   .filter(k => k.startsWith('pemusnahan:page:'))
-      //   .forEach(key => {
-      //     const pageData = pemusnahanCache.get(key);
-      //     if (!pageData) return;
-
-      //     const index = pageData.pemusnahan.data?.findIndex(p => p.ID === payload.IdKunjungan);
-      //     if (index !== -1) {
-      //       pageData.pemusnahan.data[index] = { ...pageData.pemusnahan.data[index], ...payload };
-      //       pemusnahanCache.set(key, pageData);
-      //     }
-      //   });
-
       pemusnahanCache.clear();
 
       return {
